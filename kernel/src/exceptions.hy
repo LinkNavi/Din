@@ -123,6 +123,16 @@ naked void isr13() {
     }
 }
 
+void _handle_page_fault() {
+    uint64 fault_addr = read_cr(2);
+    vga_set_color(0x4F);
+    println("EXCEPTION #PF: Page Fault");
+    vga_set_color(0x07);
+    print("Fault address: ");
+    println(fault_addr);
+    exception_halt();
+}
+
 naked void isr14() {
     asm{
         cli
@@ -141,29 +151,6 @@ naked void isr14() {
         push rcx
         push rbx
         push rax
-        mov rdi, 0x4F
-        call hylian_vga_set_color
-        lea rdi, [rel .name]
-        mov rsi, 25
-        call hylian_println
-        ; print cr2
-        mov rax, cr2
-        mov rdi, 0x07
-        call hylian_vga_set_color
-        lea rdi, [rel .cr2msg]
-        mov rsi, 15
-        call hylian_print
-        sub rsp, 32
-        mov rdi, rax
-        mov rsi, rsp
-        mov rdx, 32
-        call hylian_int_to_str
-        mov rsi, rax
-        mov rdi, rsp
-        call hylian_println
-        add rsp, 32
-        call exception_halt
-    .name:   db "EXCEPTION #PF: Page Fault", 0
-    .cr2msg: db "Fault address: ", 0
+        call _handle_page_fault
     }
 }
