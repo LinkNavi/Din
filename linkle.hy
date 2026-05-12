@@ -1,17 +1,7 @@
-project {
-    name: "Din",
-    version: "0.1.0",
-    author: "",
-}
+// Din OS workspace
+// Build all: linkle build
+// Clean all: linkle clean
 
-build {
-    src: "src",
-    main: "main",
-    out: "build",
-    bin: "Din",
-    target: "limine",
-}
-
-target clean() {
-    exec("rm -rf build");
+workspace {
+    members: ["kernel", "init"],
 }

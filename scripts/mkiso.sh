@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-KERNEL="build/bin/Din"
+KERNEL="kernel/build/bin/Din"
 ISO="Din.iso"
-LIMINE_SYS="/usr/share/limine/limine-bios.sys"
-LIMINE_BIOS_CD="/usr/share/limine/limine-bios-cd.bin"
-LIMINE_UEFI_CD="/usr/share/limine/limine-uefi-cd.bin"
-LIMINE_BOOTX64="/usr/share/limine/BOOTX64.EFI"
+LIMINE_DIR="/usr/share/limine"
 
 echo "» Building ISO..."
 
@@ -14,19 +11,21 @@ rm -rf isoroot
 mkdir -p isoroot/boot/limine
 mkdir -p isoroot/EFI/BOOT
 
-cp "$KERNEL"        isoroot/boot/Din
-cp "$LIMINE_SYS"    isoroot/boot/limine/limine-bios.sys
-cp "$LIMINE_BIOS_CD" isoroot/boot/limine/limine-bios-cd.bin
-cp "$LIMINE_UEFI_CD" isoroot/boot/limine/limine-uefi-cd.bin
-cp "$LIMINE_BOOTX64" isoroot/EFI/BOOT/BOOTX64.EFI
-cp scripts/limine.conf isoroot/boot/limine/limine.conf
+cp "$KERNEL"                         isoroot/boot/Din
+cp "$LIMINE_DIR/limine-bios.sys"     isoroot/boot/limine/
+cp "$LIMINE_DIR/limine-bios-cd.bin"  isoroot/boot/limine/
+cp "$LIMINE_DIR/limine-uefi-cd.bin"  isoroot/boot/limine/
+cp "$LIMINE_DIR/BOOTX64.EFI"         isoroot/EFI/BOOT/
+cp scripts/limine.conf               isoroot/boot/limine/
 
-xorriso -as mkisofs \
+xorriso -as mkisofs -R -r -J \
     -b boot/limine/limine-bios-cd.bin \
-    -no-emul-boot -boot-load-size 4 -boot-info-table \
+    -no-emul-boot -boot-load-size 4 -boot-info-table -hfsplus \
+    -apm-block-size 2048 \
     --efi-boot boot/limine/limine-uefi-cd.bin \
-    -efi-boot-part --efi-boot-image \
-    --protective-msdos-label \
+    -efi-boot-part --efi-boot-image --protective-msdos-label \
     isoroot -o "$ISO"
+
+limine bios-install "$ISO"
 
 echo "» ISO ready: $ISO"

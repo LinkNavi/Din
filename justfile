@@ -14,7 +14,7 @@
 # just clean       — remove build artifacts and ISO
 # ─────────────────────────────────────────────────────────────────────────────
 
-kernel := "build/bin/Din"
+kernel := "kernel/build/bin/Din"
 iso := "Din.iso"
 hdd := "Din.img"
 ovmf := "/usr/share/edk2/x64/OVMF.4m.fd"
@@ -33,9 +33,13 @@ build:
 iso: build
     @bash scripts/mkiso.sh
 
-# Boot in QEMU with VGA display
+# Boot in QEMU — GTK window + serial output in terminal
 run: iso
-    {{ qemu_base }} -cdrom {{ iso }} -vga std
+    {{ qemu_base }} -cdrom {{ iso }} -vga std -serial stdio
+
+# Boot in QEMU with ISA VGA + serial output in terminal
+run-vga: iso
+    {{ qemu_base }} -cdrom {{ iso }} -vga none -device isa-vga -serial stdio
 
 # Boot with serial output in terminal (no window)
 run-serial: iso
