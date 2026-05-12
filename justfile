@@ -25,9 +25,11 @@ qemu_base := "qemu-system-x86_64 -m 256M -no-reboot -no-shutdown -display gtk"
 default:
     @just --list
 
+linkle := "python3 ../linkle.py"
+
 # Compile the kernel ELF
 build:
-    linkle build
+    {{ linkle }} build
 
 # Build bootable ISO
 iso: build
@@ -69,6 +71,6 @@ run-hdd: hdd
 
 # Wipe everything
 clean:
-    linkle clean
+    {{ linkle }} clean
     rm -rf isoroot hddroot {{ iso }} {{ hdd }}
     @echo "» Clean done."

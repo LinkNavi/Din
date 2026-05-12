@@ -1,0 +1,3 @@
+Limine → kernel → mounts rootfs → execs /bin/init
+init → starts security server → starts any drivers → execs shell
+shell → makes syscalls → kernel checks handles → allows/denies

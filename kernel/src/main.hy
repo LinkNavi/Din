@@ -1,8 +1,12 @@
 include {
     std.kernel,
-    gdt,
-    idt,
-    exceptions,
+    boot.gdt,
+    irq.exceptions,
+    irq.idt,
+    mm.pmm,
+    mm.heap,
+    proc.proc,
+    proc.syscall,
 }
 
 void main() {
@@ -11,17 +15,28 @@ void main() {
     println("Din kernel v0.1.0");
     vga_set_color(0x07);
 
-    gdt_init();
+    Gdt.init();
 
-    Error? e = idt_init();
+    Error? e = Idt.init();
     if (e) {
         vga_set_color(0x0C);
         println("IDT init failed!");
         vga_set_color(0x07);
     }
 
+    sti();
+
     vga_set_color(0x0A);
-    println("Kernel ready. Halting.");
+    println("Interrupts enabled.");
+    vga_set_color(0x07);
+
+    Pmm.init();
+    Heap.init();
+    Proc.init();
+    Syscall.init();
+
+    vga_set_color(0x0A);
+    println("Kernel ready.");
     vga_set_color(0x07);
 
     while (true) {
